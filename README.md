@@ -1,6 +1,6 @@
 # Histopathology Nuclei Analysis
 
-A deep learning pipeline for nuclei segmentation and quantitative analysis of histopathology images using U-Net and watershed-based instance separation.
+A deep learning pipeline for nuclei segmentation, instance separation, and quantitative analysis of histopathology images using U-Net and watershed-based post-processing.
 
 ## Overview
 
@@ -8,90 +8,37 @@ This project performs automated nuclei analysis on H&E-stained histopathology im
 
 The pipeline includes:
 
-- XML annotation processing
-- Ground-truth mask generation
-- Histopathology image patch extraction
+- XML annotation to binary mask conversion
+- Image patch extraction
 - U-Net based nuclei segmentation
-- Dice and IoU based evaluation
+- Dice + Binary Cross-Entropy loss
+- Pixel-level segmentation evaluation
 - Watershed-based separation of touching nuclei
-- Nuclear morphology quantification
+- Nuclei detection and morphological quantification
 
-## Dataset
+The project was developed using the MoNuSeg 2018 histopathology dataset.
 
-The project uses the MoNuSeg histopathology nuclei segmentation dataset.
-
-The dataset contains H&E-stained tissue images with manually annotated nuclear boundaries.
-
-The data was divided at the original-image level to avoid data leakage:
-
-- Training: 25 images
-- Validation: 5 images
-- Test: 7 images
-
-256 × 256 patches were generated from the images.
-
-## Model
-
-A standard U-Net architecture was implemented using PyTorch for binary nuclei segmentation.
-
-The model uses:
-
-- Convolutional encoder
-- Bottleneck layers
-- Transpose-convolution decoder
-- Skip connections
-- Batch normalization
-- ReLU activation
-
-The training objective combines Binary Cross Entropy and Dice loss.
-
-## Results
-
-Final performance on the held-out test set:
-
-| Metric | Score |
-|---|---:|
-| Dice | 0.8182 |
-| IoU | 0.6924 |
-| Precision | 0.7842 |
-| Recall | 0.8554 |
-| Specificity | 0.9316 |
-| Pixel Accuracy | 0.9144 |
-
-## Nuclei Quantification
-
-Watershed post-processing was applied to separate touching nuclei.
-
-Results across 63 test patches:
-
-- Total detected nuclei: 1,570
-- Average nuclei per patch: 24.92
-- Average nuclear area: 575.41 px²
-- Average perimeter: 91.85 px
-- Average circularity: 0.7981
-- Total nuclear area: 903,831 px²
-
-## Project Structure
+## Pipeline
 
 ```text
-Histopathology-Nuclei-Analysis/
-│
-├── models/
-├── notebooks/
-│   └── histopathology_nuclei_analysis.ipynb
-│
-├── results/
-│   ├── nuclei_quantification_test.csv
-│   └── figures/
-│       └── test_nuclei_analysis.png
-│
-├── src/
-│   ├── dataset.py
-│   ├── evaluate.py
-│   ├── model.py
-│   ├── quantification.py
-│   └── train.py
-│
-├── .gitignore
-├── README.md
-└── requirements.txt
+Histopathology Image
+        ↓
+XML Annotations
+        ↓
+Binary Nuclear Masks
+        ↓
+256 × 256 Image Patches
+        ↓
+U-Net Segmentation
+        ↓
+Binary Nuclear Probability Map
+        ↓
+Thresholding + Morphological Processing
+        ↓
+Distance Transform
+        ↓
+Watershed Instance Separation
+        ↓
+Individual Nuclei
+        ↓
+Quantitative Analysis
